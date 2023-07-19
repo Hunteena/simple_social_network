@@ -1,0 +1,12 @@
+services:
+  db:
+    container_name: simple_sm_db
+    image: postgres:alpine
+    env_file: .env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - simple_sm_data:/var/lib/postgresql/data
+
+volumes:
+  simple_sm_data:
