@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     # CORS_ALLOW_HEADERS: Optional[List]
     # CORS_ALLOW_CREDENTIALS: Optional[bool]
 
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+
 
 @lru_cache
 def get_settings(env_file: str = ".env") -> Settings:

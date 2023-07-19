@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr, PositiveInt
 from pydantic.fields import Field
 from pydantic.types import SecretStr
@@ -7,7 +9,7 @@ class UserFields:
     id = Field(description="User id", example="1")
     username = Field(description="User name", example="John Doe")
     email = Field(description="User email", example="some@example.com")
-    password = Field(description="User password")
+    password = Field(description="User password", example="qwerty")
 
 
 class BaseUser(BaseModel):
@@ -21,7 +23,25 @@ class CreateUserCommand(BaseUser):
     password: str = UserFields.password
 
 
-class UserCreated(BaseUser):
+class User(BaseUser):
     id: PositiveInt = UserFields.id
     username: str = UserFields.username
     email: EmailStr = UserFields.email
+
+
+class UserInDB(User):
+    hashed_password: str = UserFields.password
+
+
+class LoginCommand(BaseUser):
+    username: str = UserFields.username
+    password: str = UserFields.password
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: Optional[str] = UserFields.username
