@@ -1,8 +1,10 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, PositiveInt
+from pydantic import EmailStr, PositiveInt
 from pydantic.fields import Field
 from pydantic.types import SecretStr
+
+from app.models.base import BaseModel
 
 
 class UserFields:

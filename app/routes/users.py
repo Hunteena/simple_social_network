@@ -27,6 +27,7 @@ async def login(
     return await services.login_for_access_token(cmd)
 
 
+# TODO remove
 @router.get(
     "/users",
     response_model=list[models.User],

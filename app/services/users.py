@@ -40,7 +40,7 @@ async def create_user(cmd: models.CreateUserCommand) -> models.User:
         async with conn.cursor() as cur:
             await cur.execute(q, params)
             row = await cur.fetchone()
-            user = models.User(**dict(zip(["id", "username", "email"], row)))
+            user = models.User.from_iterable(row)
             return user
 
 
@@ -56,10 +56,7 @@ async def get_all_users() -> list[models.User]:
         async with conn.cursor() as cur:
             await cur.execute(q)
             rows = await cur.fetchall()
-            users = [
-                models.User(**dict(zip(["id", "username", "email"], row)))
-                for row in rows
-            ]
+            users = [models.User.from_iterable(row) for row in rows]
             return users
 
 
@@ -86,10 +83,7 @@ async def get_user(username: str) -> models.UserInDB:
             await cur.execute(q, {'username': username})
             row = await cur.fetchone()
             if row:
-                user = models.UserInDB(
-                    **dict(zip(["id", "username", "email", "hashed_password"],
-                               row))
-                )
+                user = models.UserInDB.from_iterable(row)
                 return user
 
 
@@ -118,6 +112,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 async def login_for_access_token(cmd: models.LoginCommand) -> models.Token:
     user = await authenticate_user(cmd)
     if not user:
+        # TODO move to exceptions
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -127,12 +122,15 @@ async def login_for_access_token(cmd: models.LoginCommand) -> models.Token:
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.username},
+        expires_delta=access_token_expires
     )
     return models.Token(access_token=access_token, token_type="bearer")
 
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(jwt_header)):
+async def get_current_user(
+        credentials: HTTPAuthorizationCredentials = Security(jwt_header)
+):
     # TODO move to exceptions
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

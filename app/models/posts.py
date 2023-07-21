@@ -1,7 +1,9 @@
 from datetime import date
 from typing import Optional
 
-from pydantic import Field, BaseModel, PositiveInt
+from pydantic import Field, PositiveInt
+
+from app.models import BaseModel
 
 
 class PostFields:
