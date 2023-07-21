@@ -12,7 +12,11 @@ class PostFields:
     title = Field(description="Post title", examples=["My best post"])
     text = Field(description="Post text", examples=["Very interesting things"])
     created_at = Field(description="Created at", examples=["2023-07-20"])
-    updated_at = Field(description="Updated at", examples=["2023-07-24"], default=None)
+    updated_at = Field(
+        description="Updated at",
+        examples=["2023-07-24"],
+        default=None
+    )
 
 
 class BasePost(BaseModel):
@@ -31,3 +35,7 @@ class Post(BasePost):
     text: str = PostFields.text
     created_at: date = PostFields.created_at
     updated_at: Optional[date] = PostFields.updated_at
+
+
+class DeletePostCommand(BasePost):
+    post_id: PositiveInt = PostFields.id

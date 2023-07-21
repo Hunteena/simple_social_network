@@ -1,3 +1,4 @@
+from fastapi import HTTPException, status
 from pydantic import PositiveInt
 
 from app import models
@@ -53,3 +54,35 @@ async def get_all_posts() -> list[models.Post]:
             rows = await cur.fetchall()
             posts = [models.Post.from_iterable(row) for row in rows]
             return posts
+
+
+async def delete_post(
+        cmd: models.DeletePostCommand,
+        user_id: PositiveInt
+) -> models.Post:
+    q = """
+        DELETE FROM posts 
+        WHERE id = %(post_id)s
+            AND user_id = %(user_id)s
+        RETURNING
+            id, 
+            user_id,
+            title,
+            "text",
+            created_at,
+            updated_at;
+    """
+    params = cmd.model_dump()
+    params.update(user_id=user_id)
+    async with postgres_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(q, params)
+            row = await cur.fetchone()
+            if row:
+                post = models.Post.from_iterable(row)
+                return post
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Post not found",
+                )
