@@ -6,10 +6,10 @@ from pydantic.types import SecretStr
 
 
 class UserFields:
-    id = Field(description="User id", example="1")
-    username = Field(description="User name", example="John Doe")
-    email = Field(description="User email", example="some@example.com")
-    password = Field(description="User password", example="qwerty")
+    id = Field(description="User id", examples=["1"])
+    username = Field(description="User name", examples=["John Doe"])
+    email = Field(description="User email", examples=["some@example.com"])
+    password = Field(description="User password", examples=["qwerty"])
 
 
 class BaseUser(BaseModel):

@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 
 from app import models, services
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="", tags=["Authorization"])
 
 
 @router.post(
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
     summary="Create user",
 )
 async def create_user(cmd: models.CreateUserCommand):
-    user = await services.create(cmd=cmd)
+    user = await services.create_user(cmd=cmd)
     return user
 
 
@@ -28,9 +28,9 @@ async def login(
 
 
 @router.get(
-    "/",
+    "/users",
     response_model=list[models.User],
     summary="Get all users"
 )
 async def get_all_users():
-    return await services.get_all()
+    return await services.get_all_users()
