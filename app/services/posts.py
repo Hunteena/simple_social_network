@@ -58,7 +58,6 @@ async def get_all_posts() -> list[models.Post]:
 
 async def delete_post(
         cmd: models.DeletePostCommand,
-        user_id: PositiveInt
 ) -> models.Post:
     q = """
         DELETE FROM posts 
@@ -72,11 +71,41 @@ async def delete_post(
             created_at,
             updated_at;
     """
-    params = cmd.model_dump()
-    params.update(user_id=user_id)
     async with postgres_connection() as conn:
         async with conn.cursor() as cur:
-            await cur.execute(q, params)
+            await cur.execute(q, cmd.model_dump())
+            row = await cur.fetchone()
+            if row:
+                post = models.Post.from_iterable(row)
+                return post
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Post not found",
+                )
+
+
+async def update_post(
+        cmd: models.UpdatePostCommand
+) -> models.Post:
+    q = """
+        UPDATE posts
+            SET title = COALESCE(%(title)s, title),
+                text = COALESCE(%(text)s, text),
+                updated_at = now()
+            WHERE id = %(post_id)s
+                AND user_id = %(user_id)s
+        RETURNING
+            id, 
+            user_id,
+            title,
+            "text",
+            created_at,
+            updated_at;        
+    """
+    async with postgres_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(q, cmd.model_dump())
             row = await cur.fetchone()
             if row:
                 post = models.Post.from_iterable(row)

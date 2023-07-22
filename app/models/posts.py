@@ -1,4 +1,3 @@
-from datetime import date
 from typing import Optional
 
 from pydantic import Field, PositiveInt
@@ -11,10 +10,13 @@ class PostFields:
     user_id = Field(description="Author's id", examples=["1"])
     title = Field(description="Post title", examples=["My best post"])
     text = Field(description="Post text", examples=["Very interesting things"])
-    created_at = Field(description="Created at", examples=["2023-07-20"])
+    created_at = Field(
+        description="Created at",
+        examples=["2023-07-20 00:00:00"]
+    )
     updated_at = Field(
         description="Updated at",
-        examples=["2023-07-24"],
+        examples=["2023-07-24 00:00:00"],
         default=None
     )
 
@@ -33,9 +35,20 @@ class Post(BasePost):
     user_id: PositiveInt = PostFields.user_id
     title: str = PostFields.title
     text: str = PostFields.text
-    created_at: date = PostFields.created_at
-    updated_at: Optional[date] = PostFields.updated_at
+    created_at: str = PostFields.created_at
+    updated_at: Optional[str] = PostFields.updated_at
 
 
 class DeletePostCommand(BasePost):
     post_id: PositiveInt = PostFields.id
+    user_id: PositiveInt = PostFields.user_id
+
+
+class UpdatePostQuery(BasePost):
+    title: Optional[str] = PostFields.title
+    text: Optional[str] = PostFields.text
+
+
+class UpdatePostCommand(UpdatePostQuery):
+    post_id: PositiveInt = PostFields.id
+    user_id: PositiveInt = PostFields.user_id

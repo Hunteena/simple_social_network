@@ -45,6 +45,28 @@ async def delete_post(
         post_id: int,
 ):
     return await services.delete_post(
-        cmd=models.DeletePostCommand(post_id=post_id),
-        user_id=current_user.id
+        cmd=models.DeletePostCommand(post_id=post_id, user_id=current_user.id)
+    )
+
+
+@router.patch(
+    "/{post_id:int}",
+    response_model=models.Post,
+    summary="Update post"
+)
+async def update_post(
+        current_user: Annotated[
+            models.User,
+            Depends(services.get_current_user)
+        ],
+        post_id: int,
+        query: models.UpdatePostQuery
+):
+    return await services.update_post(
+        cmd=models.UpdatePostCommand(
+            **query.model_dump(),
+            post_id=post_id,
+            user_id=current_user.id
+        ),
+
     )
