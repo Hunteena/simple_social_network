@@ -8,8 +8,17 @@ from app.models import BaseModel
 class PostFields:
     id = Field(description="Post id", examples=["1"])
     user_id = Field(description="Author's id", examples=["1"])
-    title = Field(description="Post title", examples=["My best post"])
-    text = Field(description="Post text", examples=["Very interesting things"])
+    author = Field(description="Author username", examples=["John Doe"])
+    title = Field(
+        description="Post title",
+        examples=["My best post"],
+        default=None
+    )
+    text = Field(
+        description="Post text",
+        examples=["Very interesting things"],
+        default=None
+    )
     created_at = Field(
         description="Created at",
         examples=["2023-07-20 00:00:00"]
@@ -32,7 +41,7 @@ class CreatePostCommand(BasePost):
 
 class Post(BasePost):
     id: PositiveInt = PostFields.id
-    user_id: PositiveInt = PostFields.user_id
+    author: str = PostFields.author
     title: str = PostFields.title
     text: str = PostFields.text
     created_at: str = PostFields.created_at

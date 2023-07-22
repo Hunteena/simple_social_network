@@ -22,7 +22,7 @@ async def create_post(
             )
         RETURNING 
             id, 
-            user_id,
+            (SELECT username FROM users WHERE id = %(user_id)s) AS author,
             title,
             "text",
             created_at;
@@ -40,13 +40,15 @@ async def create_post(
 async def get_all_posts() -> list[models.Post]:
     q = """
         SELECT
-            id, 
-            user_id,
-            title,
-            "text",
-            created_at,
-            updated_at
-        FROM posts;
+            p.id, 
+            u.username AS author,
+            p.title,
+            p."text",
+            p.created_at,
+            p.updated_at
+        FROM posts AS p
+            JOIN users AS u ON p.user_id = u.id ;	
+
     """
     async with postgres_connection() as conn:
         async with conn.cursor() as cur:
@@ -65,7 +67,7 @@ async def delete_post(
             AND user_id = %(user_id)s
         RETURNING
             id, 
-            user_id,
+            (SELECT username FROM users WHERE id = %(user_id)s) AS author,
             title,
             "text",
             created_at,
@@ -97,7 +99,7 @@ async def update_post(
                 AND user_id = %(user_id)s
         RETURNING
             id, 
-            user_id,
+            (SELECT username FROM users WHERE id = %(user_id)s) AS author,
             title,
             "text",
             created_at,
