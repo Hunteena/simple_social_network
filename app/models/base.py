@@ -8,8 +8,9 @@ class BaseModel(pydantic.BaseModel):
 
     @classmethod
     def from_iterable(cls, values: Iterable):
-        fields = cls.model_fields
-        return cls(**dict(zip(fields, values)))
+        if values:
+            fields = cls.model_fields
+            return cls(**dict(zip(fields, values)))
 
     @field_validator(
         'created_at', 'updated_at',
