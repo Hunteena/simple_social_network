@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import Field, PositiveInt
+from pydantic import Field, PositiveInt, NonNegativeInt
 
 from app.models import BaseModel
 
@@ -28,6 +28,8 @@ class PostFields:
         examples=["2023-07-24 00:00:00"],
         default=None
     )
+    likes = Field(description="Post's likes", examples=[2])
+    dislikes = Field(description="Post's dislikes", examples=[1])
 
 
 class BasePost(BaseModel):
@@ -48,6 +50,11 @@ class Post(BasePost):
     updated_at: Optional[str] = PostFields.updated_at
 
 
+class PostWithReactions(Post):
+    likes: NonNegativeInt = PostFields.likes
+    dislikes: NonNegativeInt = PostFields.dislikes
+
+
 class DeletePostCommand(BasePost):
     post_id: PositiveInt = PostFields.id
     user_id: PositiveInt = PostFields.user_id
@@ -60,4 +67,12 @@ class UpdatePostQuery(BasePost):
 
 class UpdatePostCommand(UpdatePostQuery):
     post_id: PositiveInt = PostFields.id
+    user_id: PositiveInt = PostFields.user_id
+
+
+class GetPostQuery(BasePost):
+    post_id: PositiveInt = PostFields.id
+
+
+class GetPostsByUserQuery(BasePost):
     user_id: PositiveInt = PostFields.user_id

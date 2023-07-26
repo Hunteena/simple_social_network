@@ -36,24 +36,34 @@ async def create_post(
             return post
 
 
-async def get_all_posts() -> list[models.Post]:
+async def get_all_posts() -> list[models.PostWithReactions]:
     q = """
+        WITH reactions AS (
+            SELECT 
+                post_id,
+                "like",
+                count(*) 
+            FROM likes
+            WHERE "like" IS NOT NULL 
+            GROUP BY post_id, "like"
+        )
         SELECT
             p.id, 
             u.username AS author,
             p.title,
             p."text",
             p.created_at,
-            p.updated_at
+            p.updated_at,
+            COALESCE((SELECT count FROM reactions AS r WHERE r.post_id = p.id AND r."like" IS true), 0) AS likes,
+            COALESCE((SELECT count FROM reactions AS r WHERE r.post_id = p.id AND r."like" IS false), 0) AS dislikes
         FROM posts AS p
-            JOIN users AS u ON p.user_id = u.id ;	
-
-    """
+            JOIN users AS u ON p.user_id = u.id;	
+"""
     async with postgres_connection() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q)
             rows = await cur.fetchall()
-            posts = [models.Post.from_iterable(row) for row in rows]
+            posts = [models.PostWithReactions.from_iterable(row) for row in rows]
             return posts
 
 
@@ -108,5 +118,75 @@ async def update_post(
             if row:
                 post = models.Post.from_iterable(row)
                 return post
+            else:
+                raise models.PostNotFound
+
+
+async def get_post_by_id(query: models.GetPostQuery):
+    q = """
+        WITH reactions AS (
+            SELECT 
+                "like" ,
+                count(*) 
+            FROM likes
+            WHERE "like" IS NOT NULL 
+                AND post_id = %(post_id)s
+            GROUP BY "like"
+        )
+        SELECT
+            p.id, 
+            u.username AS author,
+            p.title,
+            p."text",
+            p.created_at,
+            p.updated_at,
+            COALESCE((SELECT count FROM reactions AS r WHERE r."like" IS true), 0) AS likes,
+            COALESCE((SELECT count FROM reactions AS r WHERE r."like" IS false), 0) AS dislikes
+        FROM posts AS p
+            JOIN users AS u ON p.user_id = u.id
+        WHERE p.id = %(post_id)s;	
+    """
+    async with postgres_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(q, query.model_dump())
+            row = await cur.fetchone()
+            if row:
+                post = models.PostWithReactions.from_iterable(row)
+                return post
+            else:
+                raise models.PostNotFound
+
+
+async def get_posts_by_user_id(query: models.GetPostsByUserQuery):
+    q = """
+        WITH reactions AS (
+            SELECT 
+                post_id,
+                "like",
+                count(*) 
+            FROM likes
+            WHERE "like" IS NOT NULL 
+            GROUP BY post_id, "like"
+        )
+        SELECT
+            p.id, 
+            u.username AS author,
+            p.title,
+            p."text",
+            p.created_at,
+            p.updated_at,
+            COALESCE((SELECT count FROM reactions AS r WHERE r.post_id = p.id AND r."like" IS true), 0) AS likes,
+            COALESCE((SELECT count FROM reactions AS r WHERE r.post_id = p.id AND r."like" IS false), 0) AS dislikes
+        FROM posts AS p
+            JOIN users AS u ON p.user_id = u.id
+        WHERE p.user_id = %(user_id)s;	
+    """
+    async with postgres_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(q, query.model_dump())
+            rows = await cur.fetchall()
+            if rows:
+                posts = [models.PostWithReactions.from_iterable(row) for row in rows]
+                return posts
             else:
                 raise models.PostNotFound
