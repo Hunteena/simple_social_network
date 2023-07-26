@@ -1,4 +1,3 @@
-from fastapi import HTTPException, status
 from pydantic import PositiveInt
 
 from app import models
@@ -81,10 +80,7 @@ async def delete_post(
                 post = models.Post.from_iterable(row)
                 return post
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Post not found",
-                )
+                raise models.PostNotFound
 
 
 async def update_post(
@@ -113,7 +109,4 @@ async def update_post(
                 post = models.Post.from_iterable(row)
                 return post
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Post not found",
-                )
+                raise models.PostNotFound

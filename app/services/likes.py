@@ -1,6 +1,3 @@
-import psycopg2
-from fastapi import HTTPException, status
-
 from app import models
 from app.services.db_connect import postgres_connection
 
@@ -47,15 +44,9 @@ async def react_to_post(
 ) -> models.Post:
     post_author = await get_post_author(post_id=cmd.post_id)
     if post_author is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Post not found",
-        )
+        raise models.PostNotFound
     elif post_author.id == cmd.user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Cannot react to your own post",
-        )
+        raise models.CannotReact
     current_reaction = await get_current_reaction(
         models.GetReactionQuery(post_id=cmd.post_id, user_id=cmd.user_id)
     )
