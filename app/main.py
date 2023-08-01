@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.models.exceptions import BaseAPIException
-from app.routes import users, posts, likes
+from app.routes import auth, likes, posts, users
 
 description = """
 You are able to:
@@ -22,6 +22,7 @@ app = FastAPI(
     summary="RESTful API for a simple social networking application",
 )
 
+app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(posts.router)
 app.include_router(likes.router)
