@@ -21,10 +21,12 @@ async def create_post(
             )
         RETURNING 
             id, 
+            user_id,
             (SELECT username FROM users WHERE id = %(user_id)s) AS author,
             title,
             "text",
-            created_at;
+            created_at,
+            updated_at;
     """
     params = cmd.model_dump()
     params.update(user_id=user_id)
@@ -49,6 +51,7 @@ async def get_all_posts() -> list[models.PostWithReactions]:
         )
         SELECT
             p.id, 
+            p.user_id,
             u.username AS author,
             p.title,
             p."text",
@@ -76,6 +79,7 @@ async def delete_post(
             AND user_id = %(user_id)s
         RETURNING
             id, 
+            user_id,
             (SELECT username FROM users WHERE id = %(user_id)s) AS author,
             title,
             "text",
@@ -105,6 +109,7 @@ async def update_post(
                 AND user_id = %(user_id)s
         RETURNING
             id, 
+            user_id,
             (SELECT username FROM users WHERE id = %(user_id)s) AS author,
             title,
             "text",
@@ -135,6 +140,7 @@ async def get_post_by_id(query: models.GetPostQuery):
         )
         SELECT
             p.id, 
+            p.user_id,
             u.username AS author,
             p.title,
             p."text",
@@ -170,6 +176,7 @@ async def get_posts_by_user_id(query: models.GetPostsByUserQuery):
         )
         SELECT
             p.id, 
+            p.user_id,
             u.username AS author,
             p.title,
             p."text",

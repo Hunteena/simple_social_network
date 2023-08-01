@@ -41,9 +41,14 @@ class CreatePostCommand(BasePost):
     text: str = PostFields.text
 
 
+class Author(BaseModel):
+    user_id: PositiveInt = PostFields.user_id
+    username: str = PostFields.author
+
+
 class Post(BasePost):
     id: PositiveInt = PostFields.id
-    author: str = PostFields.author
+    author: Author
     title: str = PostFields.title
     text: str = PostFields.text
     created_at: str = PostFields.created_at
