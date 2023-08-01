@@ -1,7 +1,7 @@
 from pydantic import PositiveInt
 
 from app import models
-from app.services.db_connect import postgres_connection
+from app.services.db_connect import get_db_conn
 
 
 async def create_post(
@@ -28,7 +28,7 @@ async def create_post(
     """
     params = cmd.model_dump()
     params.update(user_id=user_id)
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, params)
             row = await cur.fetchone()
@@ -59,7 +59,7 @@ async def get_all_posts() -> list[models.PostWithReactions]:
         FROM posts AS p
             JOIN users AS u ON p.user_id = u.id;	
 """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q)
             rows = await cur.fetchall()
@@ -82,7 +82,7 @@ async def delete_post(
             created_at,
             updated_at;
     """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, cmd.model_dump())
             row = await cur.fetchone()
@@ -111,7 +111,7 @@ async def update_post(
             created_at,
             updated_at;        
     """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, cmd.model_dump())
             row = await cur.fetchone()
@@ -146,7 +146,7 @@ async def get_post_by_id(query: models.GetPostQuery):
             JOIN users AS u ON p.user_id = u.id
         WHERE p.id = %(post_id)s;	
     """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, query.model_dump())
             row = await cur.fetchone()
@@ -181,7 +181,7 @@ async def get_posts_by_user_id(query: models.GetPostsByUserQuery):
             JOIN users AS u ON p.user_id = u.id
         WHERE p.user_id = %(user_id)s;	
     """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, query.model_dump())
             rows = await cur.fetchall()

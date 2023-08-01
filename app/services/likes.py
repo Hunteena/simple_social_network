@@ -1,5 +1,5 @@
 from app import models
-from app.services.db_connect import postgres_connection
+from app.services.db_connect import get_db_conn
 
 
 async def get_post_author(post_id: int) -> models.User:
@@ -12,7 +12,7 @@ async def get_post_author(post_id: int) -> models.User:
         JOIN posts AS p ON p.user_id = u.id
     WHERE p.id = %(post_id)s; 
     """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, {"post_id": post_id})
             row = await cur.fetchone()
@@ -32,7 +32,7 @@ async def get_current_reaction(
         WHERE post_id = %(post_id)s 
             AND user_id = %(user_id)s;    
     """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, query.model_dump())
             row = await cur.fetchone()
@@ -84,7 +84,7 @@ async def react_to_post(
     params = cmd.model_dump()
     if current_reaction and current_reaction.like == cmd.like:
         params["like"] = None
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, params)
             row = await cur.fetchone()

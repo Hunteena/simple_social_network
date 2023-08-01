@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
-from fastapi import HTTPException, status, Security
+from fastapi import Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 
 from app import models
-from app.services.db_connect import postgres_connection
+from app.services.db_connect import get_db_conn
 from app.settings import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -36,7 +36,7 @@ async def create_user(cmd: models.CreateUserCommand) -> models.User:
     """
     params = cmd.model_dump()
     params.update(password=get_password_hash(params["password"]))
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, params)
             row = await cur.fetchone()
@@ -52,7 +52,7 @@ async def get_all_users() -> list[models.User]:
         email
     FROM users;    
     """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q)
             rows = await cur.fetchall()
@@ -78,7 +78,7 @@ async def get_user(username: str) -> models.UserInDB:
     FROM users
     WHERE username = %(username)s;
     """
-    async with postgres_connection() as conn:
+    async with get_db_conn() as conn:
         async with conn.cursor() as cur:
             await cur.execute(q, {'username': username})
             row = await cur.fetchone()
