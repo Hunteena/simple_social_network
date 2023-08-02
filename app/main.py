@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from yoyo import get_backend, read_migrations
 
 from app.models.exceptions import BaseAPIException
 from app.routes import auth, likes, posts, users
+from app.settings import settings
 
 description = """
 You are able to:
@@ -26,6 +28,15 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(posts.router)
 app.include_router(likes.router)
+
+
+@app.on_event("startup")
+def apply_migrations():
+    backend = get_backend(settings.dsn)
+    migrations = read_migrations("migrations")
+
+    with backend.lock():
+        backend.apply_migrations(backend.to_apply(migrations))
 
 
 @app.exception_handler(BaseAPIException)

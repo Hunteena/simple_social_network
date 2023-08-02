@@ -66,8 +66,11 @@ async def get_all_posts() -> list[models.PostWithReactions]:
         async with conn.cursor() as cur:
             await cur.execute(q)
             rows = await cur.fetchall()
-            posts = [models.PostWithReactions.from_iterable(row) for row in rows]
-            return posts
+            if rows:
+                posts = [models.PostWithReactions.from_iterable(row) for row in rows]
+                return posts
+            else:
+                raise models.PostNotFound
 
 
 async def delete_post(
