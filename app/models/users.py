@@ -18,7 +18,6 @@ class BaseUser(BaseModel):
     """Base model for user"""
 
 
-# TODO SecretStr
 class CreateUserCommand(BaseUser):
     username: str = UserFields.username
     email: EmailStr = UserFields.email
