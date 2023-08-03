@@ -1,0 +1,36 @@
+services:
+  db:
+    container_name: simple_sm_db
+    image: postgres:alpine
+    env_file: .env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - simple_sm_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+
+  api:
+    container_name: simple_sm_api
+    build:
+      context: .
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=simple_sm_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./app:/code/app
+      - ./migrations:/code/migrations
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+volumes:
+  simple_sm_data:
