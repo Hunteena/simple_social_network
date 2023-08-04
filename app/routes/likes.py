@@ -10,7 +10,8 @@ router = APIRouter(prefix="/posts", tags=["Reactions"])
 @router.post(
     "/{post_id:int}/like",
     response_model=models.Reaction,
-    summary="Like a post. If the post was already liked then change to no reaction",
+    summary="Like a post. "
+            "If the post was already liked then change to no reaction",
 )
 async def like_post(
         post_id: int,
@@ -31,7 +32,8 @@ async def like_post(
 @router.post(
     "/{post_id:int}/dislike",
     response_model=models.Reaction,
-    summary="Dislike a post. If the post was already disliked then change to no reaction",
+    summary="Dislike a post. "
+            "If the post was already disliked then change to no reaction",
 )
 async def dislike_post(
         post_id: int,

@@ -38,7 +38,9 @@ async def create_post(
     summary="View post by id",
 )
 async def get_post_by_id(post_id: int):
-    return await services.get_post_by_id(query=models.GetPostQuery(post_id=post_id))
+    return await services.get_post_by_id(
+        query=models.GetPostQuery(post_id=post_id)
+    )
 
 
 @router.patch(

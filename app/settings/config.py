@@ -8,11 +8,10 @@ __all__ = ["Settings", "get_settings"]
 
 
 class Settings(BaseSettings):
-    """Server settings.
-
-    Formed from `.env`.
-    """
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8"
+    )
     POSTGRES_HOST: str
     POSTGRES_PORT: PositiveInt
     POSTGRES_USER: str

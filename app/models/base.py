@@ -39,9 +39,10 @@ class BaseModel(pydantic.BaseModel):
                     next(row_iter)
                     for _ in range(len(field_type.model_fields))
                 ]
-                mapping[field] = field_type.from_iterable(field_values)
+                next_value = field_type.from_iterable(field_values)
             else:
-                mapping[field] = next(row_iter)
+                next_value = next(row_iter)
+            mapping[field] = next_value
         return cls(**mapping)
 
     @field_validator(

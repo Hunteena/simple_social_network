@@ -57,8 +57,14 @@ async def get_all_posts() -> list[models.PostWithReactions]:
             p."text",
             p.created_at,
             p.updated_at,
-            COALESCE((SELECT count FROM reactions AS r WHERE r.post_id = p.id AND r."like" IS true), 0) AS likes,
-            COALESCE((SELECT count FROM reactions AS r WHERE r.post_id = p.id AND r."like" IS false), 0) AS dislikes
+            COALESCE((
+                SELECT count FROM reactions AS r 
+                WHERE r.post_id = p.id AND r."like" IS true
+            ), 0) AS likes,
+            COALESCE((
+                SELECT count FROM reactions AS r 
+                WHERE r.post_id = p.id AND r."like" IS false
+            ), 0) AS dislikes
         FROM posts AS p
             JOIN users AS u ON p.user_id = u.id;	
 """
@@ -67,8 +73,10 @@ async def get_all_posts() -> list[models.PostWithReactions]:
             await cur.execute(q)
             rows = await cur.fetchall()
             if rows:
-                posts = [models.PostWithReactions.from_iterable(row) for row in rows]
-                return posts
+                return [
+                    models.PostWithReactions.from_iterable(row)
+                    for row in rows
+                ]
             else:
                 raise models.PostNotFound
 

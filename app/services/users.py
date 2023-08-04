@@ -44,22 +44,6 @@ async def create_user(cmd: models.CreateUserCommand) -> models.User:
             return user
 
 
-async def get_all_users() -> list[models.User]:
-    q = """
-    SELECT 
-        id, 
-        username,
-        email
-    FROM users;    
-    """
-    async with get_db_conn() as conn:
-        async with conn.cursor() as cur:
-            await cur.execute(q)
-            rows = await cur.fetchall()
-            users = [models.User.from_iterable(row) for row in rows]
-            return users
-
-
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -70,13 +54,13 @@ def get_password_hash(password):
 
 async def get_user(username: str) -> models.UserInDB:
     q = """
-    SELECT 
-        id,
-        username,
-        email,
-        password
-    FROM users
-    WHERE username = %(username)s;
+        SELECT 
+            id,
+            username,
+            email,
+            password
+        FROM users
+        WHERE username = %(username)s;
     """
     async with get_db_conn() as conn:
         async with conn.cursor() as cur:

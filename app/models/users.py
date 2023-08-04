@@ -2,13 +2,12 @@ from typing import Optional
 
 from pydantic import EmailStr, PositiveInt
 from pydantic.fields import Field
-from pydantic.types import SecretStr
 
 from app.models.base import BaseModel
 
 
 class UserFields:
-    id = Field(description="User id", examples=["1"])
+    id = Field(description="User id", examples=[1])
     username = Field(description="User name", examples=["John Doe"])
     email = Field(description="User email", examples=["some@example.com"])
     password = Field(description="User password", examples=["qwerty"])

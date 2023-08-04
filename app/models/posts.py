@@ -6,8 +6,8 @@ from app.models import BaseModel
 
 
 class PostFields:
-    id = Field(description="Post id", examples=["1"])
-    user_id = Field(description="Author's id", examples=["1"])
+    id = Field(description="Post id", examples=[1])
+    user_id = Field(description="Author's id", examples=[1])
     author = Field(description="Author username", examples=["John Doe"])
     title = Field(
         description="Post title",
