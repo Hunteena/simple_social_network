@@ -8,7 +8,10 @@ from app.settings import settings
 
 description = """
 You are able to:
+
 - **view** all posts,
+- **view** a post by post_id,
+- **view** all posts of a user by user_id,
 - **signup**,
 - **login** and get an access token.  
 
